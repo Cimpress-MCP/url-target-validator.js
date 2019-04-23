@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+- '8'
+before_script:
+- npm run test
+- node make.js build
+before_deploy:
+- node make.js after_build
+deploy:
+  provider: npm
+  email: atsquad@cimpress.com
+  api_key:
+    secure: ibFoYi1G6Sc/oy7XY8uodp6lQ8tK7EZJnjWudjdJcDFFhavL3j06R1wzTGYlez8rtEieLONQRX1STgNNwJksYzYb02MPdzppjrxN4svRZMn1qQ6Kafly7POhOyTY7MuHpdJylMRIOENRPwI2LF2cabftNQW/XiiK9ryA1T6ROaaTba4OaEjLxRt9xvaHpqDPmsiTqgNY51d6C+nVmFZxgxWKdOpVVu/nky+xQLYruuQscfRPMJKHRKWOwvrGoqfqdenssc7BKGLibHVDlOSjkMptSyf67CJVnfwQ6Gn/YAmPItAUfOxZ/W/nGFjSLT5buf+8dibr5fJI6WpForSdPwo80hBS85BV1y/9yDkJkgMQPRBeyVZerOoB2P2FTBXs4LCz/pYb/+bli1DyrpB+0BtQyFgDggDuIHmerx8YsRKeSA4UPp15ceL4UiOQgJUoEcTFOM303XIAKlRHgmzZe8g0/+V5tpIoEiEZFaDSMXMY9BESpWayGxeiDeRiqb+WlYzZF6EgfAUCzfJfR915tGWsneSh3Ng3leJYp9XJmjm/R+ISyJE86uhy1KNB10VPwYgYNSIQcVrJ44gN00dBSR46C7DFOZaw/FhVcKbpWqrh0He/AzIV+OP2Qbzz0YvDluz1rGX6ir6BYH3nuox+8WqDxJKwIRRv+aRDc3kPPFU=
+  skip_cleanup: true
+  on:
+    all_branches: true
+    condition: "$TRAVIS_BRANCH != master"
+branches:
+  only:
+  - master
+  - "/^release.*/"
+env:
+  global:
+    secure: Gua3YYyNpVp2rRRXQ2U5tU/xxCcURHQOeUG5diOWjp40DsIQPeMAVCdSPTINyK+wlurPcGHHktCphGRAay94fPB641n8+/J7IiBHEsANIciDaFwBaPsCIvhD0qosHZoh8tSIzMiLCNO/wbX97ggC9e4kVqsGYkklx97kzmov/m8Onvquy/J+Ic4QsUzgF4hfI89IZzaqajdQIOLkMtf5mp8ELD/06OQFi5j2UK8y/Uq5QZsntm3FT/Ew7HvIm9it9aXANDPppJNyK7mxkc0NIXmDicoGaNxrkBT10MZjWCPxwYPPV2SuvcMhDDW2JuQyePjjEF6//eMHtYKvmwkh/SSmXCX94aK53Z8IS5LdSmNdtNhLC7/FJ3doF0EPKOSVyqIgJIKS7O7QQrJzmni/3WaH7i9921zAjSeqcDL5vVX9HFWCwTHlx+1ZJeE0z6Hd2L8gOrKThlo4XzFMGx74aa1KHOF/MLw6yXdG5dez3q7vtX1gK4u2bXQtgiMip/LcdxdUGVqIjnJd/RZ7FS1LTTwomFedO2GWnk4mNSQyAYszmhqwHXW0kPsZ7twZtUpEiSjx7Z651HOC8gxgGJ/j7P0Wh8+90YwNb5mq9/wexArL6TZ4NBQCLF0o7wCDnn35ElgS023CXdrUtn+tSCaVg+nEU09UuTT833xVWl23Bwg=
