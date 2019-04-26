@@ -90,7 +90,13 @@ describe('urlValidator.js', () => {
           return callback(null, [resolvedIpAddress]);
         });
         dnsMock.expects('resolve6').callsFake((hostname, callback) => {
-          callback(null, [resolvedIpAddress]);
+          if (hostname === hostnameWithDnsProblem) {
+            return callback('DnsResolutionError');
+          }
+          if (hostname === 'localhost') {
+            return callback(null, ['::1']);
+          }
+          return callback(null, [resolvedIpAddress]);
         });
 
         let error;

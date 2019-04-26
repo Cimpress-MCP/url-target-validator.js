@@ -3,7 +3,7 @@ const dns = require('dns');
 const ipRegex = require('ip-regex');
 
 // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
-const list = ['10.', '127.', '169.254.', '192.0.0.', '192.0.', '192.31.', '255.255.255.'];
+const list = ['10.', '127.', '169.254.', '192.0.0.', '192.0.', '192.31.', '255.255.255.', '::1'];
 
 module.exports = class {
   /**
@@ -34,11 +34,26 @@ module.exports = class {
     const hostname = url.hostname;
     let ipAddresses = [hostname];
     if (!ipRegex({ exact: true }).test(hostname)) {
+      let ipv4Error = false;
+      let ipv6Error = false;
+      ipAddresses = [];
+      const ipv4Resolver = new Promise((resolve, reject) => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
+      const ipv6Resolver = new Promise((resolve, reject) => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
       try {
-        const ipv4Result = await new Promise((resolve, reject) => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
-        const ipv6Result = await new Promise((resolve, reject) => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
-        ipAddresses = ipv4Result.concat(ipv6Result);
+        const result = await ipv4Resolver;
+        ipAddresses = ipAddresses.concat(result);
       } catch (error) {
+        ipv4Error = true;
+      }
+
+      try {
+        const result = await ipv6Resolver;
+        ipAddresses = ipAddresses.concat(result);
+      } catch (error) {
+        ipv6Error = true;
+      }
+
+      if (ipv4Error && ipv6Error) {
         throw new Error('DnsResolutionError');
       }
     }
