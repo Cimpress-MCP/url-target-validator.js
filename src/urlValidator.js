@@ -5,6 +5,14 @@ const ipRegex = require('ip-regex');
 // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
 const list = ['10.', '127.', '169.254.', '192.0.0.', '192.0.', '192.31.', '255.255.255.', '::1'];
 
+const handleRejection = (funcToExecute, reject) => {
+  try {
+    return funcToExecute();
+  } catch (err) {
+    reject(err);
+  }
+}
+
 module.exports = class {
   /**
    * Validates an URL to be conform to a URL format, and optionally validates the protocol to be HTTPS.
@@ -37,8 +45,8 @@ module.exports = class {
       let ipv4Error = false;
       let ipv6Error = false;
       ipAddresses = [];
-      const ipv4Resolver = new Promise((resolve, reject) => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
-      const ipv6Resolver = new Promise((resolve, reject) => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
+      const ipv4Resolver = new Promise((resolve, reject) => handleRejection(() => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)), reject));
+      const ipv6Resolver = new Promise((resolve, reject) => handleRejection(() => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)), reject));
       try {
         const result = await ipv4Resolver;
         ipAddresses = ipAddresses.concat(result);
