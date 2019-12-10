@@ -109,4 +109,20 @@ describe('urlValidator.js', () => {
       });
     });
   });
+
+  describe('handles async errors inside of the dns library', () => {
+    it('handles dns.resolve4 and dns.resolve6 promise rejection', async () => {
+      const dnsMock = sandbox.mock(dns);
+      dnsMock.expects('resolve4').rejects('error');
+      dnsMock.expects('resolve6').rejects('error');
+
+      let error;
+      try {
+        await new UrlValidator().validate('https://unit-test.cimpress.io');
+      } catch (capturedError) {
+        error = capturedError;
+      }
+      expect(error && error.message).to.eql('DnsResolutionError');
+    });
+  });
 });

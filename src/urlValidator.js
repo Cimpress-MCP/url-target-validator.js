@@ -5,13 +5,18 @@ const ipRegex = require('ip-regex');
 // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
 const list = ['10.', '127.', '169.254.', '192.0.0.', '192.0.', '192.31.', '255.255.255.', '::1'];
 
-const handleRejection = (funcToExecute, reject) => {
-  try {
-    return funcToExecute();
-  } catch (err) {
-    reject(err);
-  }
-}
+const promisify = funcToPromisify => {
+  return (...args) => {
+    // eslint-disable-next-line no-async-promise-executor
+    return new Promise(async (resolve, reject) => {
+      try {
+        await funcToPromisify(...args, (error, success) => error ? reject(error) : resolve(success));
+      } catch (exception) {
+        reject(exception);
+      }
+    });
+  };
+};
 
 module.exports = class {
   /**
@@ -45,17 +50,18 @@ module.exports = class {
       let ipv4Error = false;
       let ipv6Error = false;
       ipAddresses = [];
-      const ipv4Resolver = new Promise((resolve, reject) => handleRejection(() => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)), reject));
-      const ipv6Resolver = new Promise((resolve, reject) => handleRejection(() => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)), reject));
+
+      const ipv4Resolver = promisify(dns.resolve4);
+      const ipv6Resolver = promisify(dns.resolve6);
       try {
-        const result = await ipv4Resolver;
+        const result = await ipv4Resolver(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv4Error = true;
       }
 
       try {
-        const result = await ipv6Resolver;
+        const result = await ipv6Resolver(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv6Error = true;
