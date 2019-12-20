@@ -1,6 +1,6 @@
 {
   "name": "url-target-validator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Utilities supporting authorization, request logging and other often reused parts of microservices.",
   "main": "src/urlValidator.js",
   "files": [
@@ -43,6 +43,6 @@
     "sinon": "^7.4.1"
   },
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=10"
   }
 }

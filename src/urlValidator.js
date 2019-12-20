@@ -1,22 +1,9 @@
 const { URL } = require('url');
-const dns = require('dns');
+const dns = require('dns').promises;
 const ipRegex = require('ip-regex');
 
 // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
 const list = ['10.', '127.', '169.254.', '192.0.0.', '192.0.', '192.31.', '255.255.255.', '::1'];
-
-const promisify = funcToPromisify => {
-  return (...args) => {
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      try {
-        await funcToPromisify(...args, (error, success) => error ? reject(error) : resolve(success));
-      } catch (exception) {
-        reject(exception);
-      }
-    });
-  };
-};
 
 module.exports = class {
   /**
@@ -51,17 +38,15 @@ module.exports = class {
       let ipv6Error = false;
       ipAddresses = [];
 
-      const ipv4Resolver = promisify(dns.resolve4);
-      const ipv6Resolver = promisify(dns.resolve6);
       try {
-        const result = await ipv4Resolver(hostname);
+        const result = await dns.resolve4(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv4Error = true;
       }
 
       try {
-        const result = await ipv6Resolver(hostname);
+        const result = await dns.resolve6(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv6Error = true;

@@ -1,7 +1,7 @@
 const { describe, it, beforeEach, afterEach } = require('mocha');
 const { expect } = require('chai');
 const sinon = require('sinon');
-const dns = require('dns');
+const dns = require('dns').promises;
 
 const UrlValidator = require('../src/urlValidator');
 
@@ -12,8 +12,7 @@ afterEach(() => sandbox.restore());
 describe('urlValidator.js', () => {
   describe('validates URL', () => {
     const resolvedIpAddress = '2.2.2.2';
-    const hostnameWithDnsProblem = 'url-with-dns-problem.com';
-    const urlWithDnsProblem = `https://${hostnameWithDnsProblem}`;
+    const urlWithDnsProblem = 'https://url-with-dns-problem.com';
     const testCases = [
       {
         name: 'url is null',
@@ -80,24 +79,20 @@ describe('urlValidator.js', () => {
     testCases.forEach(test => {
       it(test.name, async () => {
         const dnsMock = sandbox.mock(dns);
-        dnsMock.expects('resolve4').callsFake((hostname, callback) => {
-          if (hostname === hostnameWithDnsProblem) {
-            return callback('DnsResolutionError');
-          }
-          if (hostname === 'localhost') {
-            return callback(null, ['127.0.0.1']);
-          }
-          return callback(null, [resolvedIpAddress]);
-        });
-        dnsMock.expects('resolve6').callsFake((hostname, callback) => {
-          if (hostname === hostnameWithDnsProblem) {
-            return callback('DnsResolutionError');
-          }
-          if (hostname === 'localhost') {
-            return callback(null, ['::1']);
-          }
-          return callback(null, [resolvedIpAddress]);
-        });
+
+        switch (test.url) {
+          case urlWithDnsProblem:
+            dnsMock.expects('resolve4').rejects('DnsResolutionError');
+            dnsMock.expects('resolve6').rejects('DnsResolutionError');
+            break;
+          case 'https://localhost':
+            dnsMock.expects('resolve4').resolves(['127.0.0.1']);
+            dnsMock.expects('resolve6').resolves(['::1']);
+            break;
+          default:
+            dnsMock.expects('resolve4').resolves([resolvedIpAddress]);
+            dnsMock.expects('resolve6').resolves([resolvedIpAddress]);
+        }
 
         let error;
         try {
@@ -107,22 +102,6 @@ describe('urlValidator.js', () => {
         }
         expect(error && error.message).to.eql(test.error);
       });
-    });
-  });
-
-  describe('handles async errors inside of the dns library', () => {
-    it('handles dns.resolve4 and dns.resolve6 promise rejection', async () => {
-      const dnsMock = sandbox.mock(dns);
-      dnsMock.expects('resolve4').rejects('error');
-      dnsMock.expects('resolve6').rejects('error');
-
-      let error;
-      try {
-        await new UrlValidator().validate('https://unit-test.cimpress.io');
-      } catch (capturedError) {
-        error = capturedError;
-      }
-      expect(error && error.message).to.eql('DnsResolutionError');
     });
   });
 });
