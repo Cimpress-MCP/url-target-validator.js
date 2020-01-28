@@ -1,5 +1,5 @@
 const { URL } = require('url');
-const dns = require('dns');
+const dns = require('dns').promises;
 const ipRegex = require('ip-regex');
 
 // https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
@@ -37,17 +37,16 @@ module.exports = class {
       let ipv4Error = false;
       let ipv6Error = false;
       ipAddresses = [];
-      const ipv4Resolver = new Promise((resolve, reject) => dns.resolve4(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
-      const ipv6Resolver = new Promise((resolve, reject) => dns.resolve6(hostname, (error, addresses) => error ? reject(error) : resolve(addresses)));
+
       try {
-        const result = await ipv4Resolver;
+        const result = await dns.resolve4(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv4Error = true;
       }
 
       try {
-        const result = await ipv6Resolver;
+        const result = await dns.resolve6(hostname);
         ipAddresses = ipAddresses.concat(result);
       } catch (error) {
         ipv6Error = true;

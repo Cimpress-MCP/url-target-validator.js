@@ -174,10 +174,10 @@ chardet@^0.7.0:
   resolved "https://registry.yarnpkg.com/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
   integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
 
-ci-build-tools@1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/ci-build-tools/-/ci-build-tools-1.0.9.tgz#563b1d585f3d83545e504a4cff6ebc3948c72a75"
-  integrity sha1-VjsdWF89g1ReUEpM/268OUjHKnU=
+ci-build-tools@1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/ci-build-tools/-/ci-build-tools-1.0.13.tgz#5c63e99d088a3052e06c2a07ebede586bd14cffc"
+  integrity sha1-XGPpnQiKMFLgbCoH6+3lhr0Uz/w=
   dependencies:
     semver "^5.0.3"
 
